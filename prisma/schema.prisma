@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+  leads    Buyer[]
+  leadList Lead[]
+}
+
+model Buyer {
+  id           Int           @id @default(autoincrement())
+  fullName     String
+  email        String
+  phoneNumber  String
+  budgetRange  String
+  locationPref String
+  propertyType String
+  status       BuyerStatus   @default(NEW)
+  createdAt    DateTime      @default(now())
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id])
+  history      BuyerHistory[]
+}
+
+model BuyerHistory {
+  id        Int      @id @default(autoincrement())
+  buyerId   Int
+  buyer     Buyer    @relation(fields: [buyerId], references: [id])
+  note      String
+  createdAt DateTime @default(now())
+}
+
+enum BuyerStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  NOT_INTERESTED
+}
+
+model Lead {
+  id           Int        @id @default(autoincrement())
+  fullName     String
+  email        String
+  phoneNumber  String
+  budgetRange  String
+  locationPref String
+  propertyType String
+  status       String
+  createdAt    DateTime   @default(now())
+  userId       Int
+  user         User       @relation(fields: [userId], references: [id])
+  history      LeadHistory[]
+}
+
+model LeadHistory {
+  id        Int      @id @default(autoincrement())
+  leadId    Int
+  status    String
+  comment   String?
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id])
+}
